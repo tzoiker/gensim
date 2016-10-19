@@ -163,7 +163,10 @@ def remove_file(s):
     return s
 
 
-def tokenize(content):
+
+import eventa_recsys.recommendation.nlp.texts_similarity as txt_sim
+
+def tokenize(content, lang='en'):
     """
     Tokenize a piece of text from wikipedia. The input string `content` is assumed
     to be mark-up free (see `filter_wiki()`).
@@ -171,8 +174,11 @@ def tokenize(content):
     Return list of tokens as utf8 bytestrings. Ignore words shorted than 2 or longer
     that 15 characters (not bytes!).
     """
+
     # TODO maybe ignore tokens with non-latin characters? (no chinese, arabic, russian etc.)
-    return [token.encode('utf8') for token in utils.tokenize(content, lower=True, errors='ignore')
+    # return [token.encode('utf8') for token in utils.tokenize(content, lower=True, errors='ignore')
+    #         if 2 <= len(token) <= 15 and not token.startswith('_')]
+    return [token.encode('utf8') for token in txt_sim.normalize(content, lower=True, lang=lang)
             if 2 <= len(token) <= 15 and not token.startswith('_')]
 
 
@@ -238,12 +244,13 @@ def process_article(args):
     Parse a wikipedia article, returning its content as a list of tokens
     (utf8-encoded strings).
     """
-    text, lemmatize, title, pageid = args
+    
+    text, lemmatize, title, pageid, lang = args
     text = filter_wiki(text)
     if lemmatize:
         result = utils.lemmatize(text)
     else:
-        result = tokenize(text)
+        result = tokenize(text, lang)
     return result, title, pageid
 
 
@@ -258,7 +265,7 @@ class WikiCorpus(TextCorpus):
     >>> MmCorpus.serialize('wiki_en_vocab200k.mm', wiki) # another 8h, creates a file in MatrixMarket format plus file with id->word
 
     """
-    def __init__(self, fname, processes=None, lemmatize=utils.has_pattern(), dictionary=None, filter_namespaces=('0',)):
+    def __init__(self, fname, processes=None, lemmatize=utils.has_pattern(), dictionary=None, filter_namespaces=('0',), lang='en'):
         """
         Initialize the corpus. Unless a dictionary is provided, this scans the
         corpus once, to determine its vocabulary.
@@ -268,6 +275,7 @@ class WikiCorpus(TextCorpus):
         this automatic logic by forcing the `lemmatize` parameter explicitly.
 
         """
+        self.lang = lang
         self.fname = fname
         self.filter_namespaces = filter_namespaces
         self.metadata = False
@@ -296,7 +304,7 @@ class WikiCorpus(TextCorpus):
         """
         articles, articles_all = 0, 0
         positions, positions_all = 0, 0
-        texts = ((text, self.lemmatize, title, pageid) for title, text, pageid in extract_pages(bz2.BZ2File(self.fname), self.filter_namespaces))
+        texts = ((text, self.lemmatize, title, pageid, self.lang) for title, text, pageid in extract_pages(bz2.BZ2File(self.fname), self.filter_namespaces))
         pool = multiprocessing.Pool(self.processes)
         # process the corpus in smaller chunks of docs, because multiprocessing.Pool
         # is dumb and would load the entire input into RAM at once...
