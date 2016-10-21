@@ -265,7 +265,7 @@ class WikiCorpus(TextCorpus):
     >>> MmCorpus.serialize('wiki_en_vocab200k.mm', wiki) # another 8h, creates a file in MatrixMarket format plus file with id->word
 
     """
-    def __init__(self, fname, processes=None, lemmatize=utils.has_pattern(), dictionary=None, filter_namespaces=('0',), lang='en'):
+    def __init__(self, fname, processes=None, lemmatize=utils.has_pattern(), dictionary=None, filter_namespaces=('0',)):
         """
         Initialize the corpus. Unless a dictionary is provided, this scans the
         corpus once, to determine its vocabulary.
@@ -275,7 +275,6 @@ class WikiCorpus(TextCorpus):
         this automatic logic by forcing the `lemmatize` parameter explicitly.
 
         """
-        self.lang = lang
         self.fname = fname
         self.filter_namespaces = filter_namespaces
         self.metadata = False
@@ -304,7 +303,7 @@ class WikiCorpus(TextCorpus):
         """
         articles, articles_all = 0, 0
         positions, positions_all = 0, 0
-        texts = ((text, self.lemmatize, title, pageid, self.lang) for title, text, pageid in extract_pages(bz2.BZ2File(self.fname), self.filter_namespaces))
+        texts = ((text, self.lemmatize, title, pageid) for title, text, pageid in extract_pages(bz2.BZ2File(self.fname), self.filter_namespaces))
         pool = multiprocessing.Pool(self.processes)
         # process the corpus in smaller chunks of docs, because multiprocessing.Pool
         # is dumb and would load the entire input into RAM at once...
