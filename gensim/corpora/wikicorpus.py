@@ -164,9 +164,9 @@ def remove_file(s):
 
 
 
-import eventa_recsys.recommendation.nlp.texts_similarity as txt_sim
+import eventa_recsys.recommendation.nlp.utils
 
-def tokenize(content, lang='en'):
+def tokenize(content):
     """
     Tokenize a piece of text from wikipedia. The input string `content` is assumed
     to be mark-up free (see `filter_wiki()`).
@@ -178,7 +178,7 @@ def tokenize(content, lang='en'):
     # TODO maybe ignore tokens with non-latin characters? (no chinese, arabic, russian etc.)
     # return [token.encode('utf8') for token in utils.tokenize(content, lower=True, errors='ignore')
     #         if 2 <= len(token) <= 15 and not token.startswith('_')]
-    return [token.encode('utf8') for token in txt_sim.normalize(content, lower=True, lang=lang)
+    return [token.encode('utf8') for token in eventa_recsys.recommendation.nlp.utils.normalize(content, lower=True)
             if 2 <= len(token) <= 15 and not token.startswith('_')]
 
 
@@ -245,12 +245,12 @@ def process_article(args):
     (utf8-encoded strings).
     """
     
-    text, lemmatize, title, pageid, lang = args
+    text, lemmatize, title, pageid = args
     text = filter_wiki(text)
     if lemmatize:
         result = utils.lemmatize(text)
     else:
-        result = tokenize(text, lang)
+        result = tokenize(text)
     return result, title, pageid
 
 

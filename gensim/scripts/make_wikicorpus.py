@@ -85,7 +85,7 @@ if __name__ == '__main__':
         wiki.save(outp + '_corpus.pkl.bz2')
         dictionary.allow_update = False
     else:
-        wiki = WikiCorpus(inp, lemmatize=lemmatize, lang='ru') # takes about 9h on a macbook pro, for 3.5m articles (june 2011)
+        wiki = WikiCorpus(inp, lemmatize=lemmatize) # takes about 9h on a macbook pro, for 3.5m articles (june 2011)
         # only keep the most frequent words (out of total ~8.2m unique tokens)
         wiki.dictionary.filter_extremes(no_below=20, no_above=0.1, keep_n=DEFAULT_DICT_SIZE)
         # save dictionary and bag-of-words (term-document frequency matrix)
