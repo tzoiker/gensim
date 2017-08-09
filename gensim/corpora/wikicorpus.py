@@ -164,7 +164,7 @@ def remove_file(s):
 
 
 
-import eventa_recsys.recommendation.nlp.utils
+import chameet_commons.nlp.utils
 
 def tokenize(content):
     """
@@ -178,7 +178,7 @@ def tokenize(content):
     # TODO maybe ignore tokens with non-latin characters? (no chinese, arabic, russian etc.)
     # return [token.encode('utf8') for token in utils.tokenize(content, lower=True, errors='ignore')
     #         if 2 <= len(token) <= 15 and not token.startswith('_')]
-    return [token.encode('utf8') for token in eventa_recsys.recommendation.nlp.utils.normalize(content, lower=True)
+    return [token.encode('utf8') for token in chameet_commons.nlp.utils.normalize(content, lower=True)
             if 2 <= len(token) <= 15 and not token.startswith('_')]
 
 
